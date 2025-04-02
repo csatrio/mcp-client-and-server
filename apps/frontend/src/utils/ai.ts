@@ -56,11 +56,16 @@ export const genAIResponse = createServerFn({ method: "POST", response: "raw" })
     } catch (error) {
       console.error("Error in genAIResponse:", error);
       if (error instanceof Error && error.message.includes("rate limit")) {
-        return { error: "Rate limit exceeded. Please try again in a moment." };
+        return new Response(
+          JSON.stringify({ error: "Rate limit exceeded. Please try again in a moment." }),
+          { status: 429, headers: { "Content-Type": "application/json" } }
+        );
       }
-      return {
-        error:
-          error instanceof Error ? error.message : "Failed to get AI response",
-      };
+      return new Response(
+        JSON.stringify({
+          error: error instanceof Error ? error.message : "Failed to get AI response",
+        }),
+        { status: 500, headers: { "Content-Type": "application/json" } }
+      );
     }
   });
